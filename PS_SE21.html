@@ -337,10 +337,13 @@ window.SIGNAGE_CONFIG = {
   function fit() {
     const w = window.innerWidth || document.documentElement.clientWidth;
     const h = window.innerHeight || document.documentElement.clientHeight;
-    const s = Math.min(w / 1872, h / 1248);
-    $("stage").style.transform = `scale(${s})`;
-    if (dbg) dbg.textContent = `browser ${w} × ${h} · dpr ${window.devicePixelRatio} · scale ${s.toFixed(3)}`;
-  }
+        // STRETCH = true : 브라우저 창을 가로·세로 꽉 채움 (플레이어가 1920×1080을 LED 1872×1248로 늘려 보내는 경우)
+    // STRETCH = false: 비율 유지하며 창 안에 맞춤
+    const STRETCH = true;
+    let sx = w / 1872, sy = h / 1248;
+    if (!STRETCH) sx = sy = Math.min(sx, sy);
+    $("stage").style.transform = `scale(${sx}, ${sy})`;
+    if (dbg) dbg.textContent = `browser ${w} × ${h} · dpr ${window.devicePixelRatio} · scale ${sx.toFixed(3)} × ${sy.toFixed(3)}`;
   window.addEventListener("resize", fit);
   fit();
   setTimeout(fit, 1000); // 플레이어가 창 크기를 늦게 알려주는 경우 대비
