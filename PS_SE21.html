@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1872, height=1248">
+  <title>Dulwich Seoul · 2F Signage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --accent: #9B1B30;
+  --ground: #F3F1EE;
+  --card: #FFFFFF;
+  --ink: #1C1B1F;
+  --muted: #5E5A57;
+  --line: #ECE9E5;
+  --pink: #F2B8C0;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  cursor: none;
+}
+
+/* 1872×1248 고정 캔버스. 해상도가 다르면 비율에 맞게 축소/확대 */
+.stage {
+  width: 1872px;
+  height: 1248px;
+  display: flex;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
+  transform-origin: top left;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* 두 화면 – 가운데 베젤(x=936)을 넘는 요소 없음 */
+.screen { width: 936px; height: 1248px; display: flex; flex-direction: column; }
+
+.bar {
+  height: 120px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+.bar--left  { gap: 28px; padding: 0 48px 0 56px; }
+.bar--right { justify-content: flex-end; gap: 28px; padding: 0 56px 0 48px; }
+
+/* 로고: height 숫자로 크기 조절 (헤더 높이 120px) */
+.logo { height: 96px; width: auto; max-width: 600px; object-fit: contain; display: block; }
+.brand { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.brand__en { font-size: 26px; font-weight: 800; letter-spacing: 3px; }
+.brand__en span { font-weight: 500; opacity: .85; }
+.brand__ko { font-family: 'Noto Sans KR', sans-serif; font-size: 20px; font-weight: 500; letter-spacing: 2px; opacity: .9; }
+
+.date { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.date__en { font-size: 22px; font-weight: 600; opacity: .9; }
+.date__ko { font-family: 'Noto Sans KR', sans-serif; font-size: 18px; opacity: .8; }
+.bar__divider { width: 2px; height: 60px; background: rgba(255,255,255,.35); }
+.clock { font-size: 64px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+.clock__ampm { font-size: 26px; font-weight: 600; margin-left: 8px; }
+
+.col { flex: 1; display: flex; flex-direction: column; gap: 20px; padding: 36px 48px 40px 56px; min-height: 0; }
+.screen--right .col { padding: 36px 56px 40px 48px; }
+
+.card { background: var(--card); border-radius: 24px; }
+.card__head { display: flex; align-items: baseline; justify-content: space-between; }
+.card__head--pad { padding: 26px 36px 18px; }
+.card h2 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -.5px; }
+.ko { font-family: 'Noto Sans KR', sans-serif; font-size: 22px; color: var(--muted); }
+
+/* ---------- Outside ---------- */
+.card--outside { height: 444px; padding: 32px 36px 18px; display: flex; flex-direction: column; gap: 22px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; height: 170px; flex: none; }
+/* 타일: 등급별 배경 / 테두리 / 아이콘 / 배지 색 */
+.tile { border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 22px; padding: 0 20px; min-width: 0;
+        background: var(--t-bg); border: 3px solid var(--t-line); color: var(--t-icon);
+        transition: background .4s, border-color .4s, color .4s; }
+.tile--green  { --t-bg: #E8F5EA; --t-line: #4CAF50; --t-icon: #2E8B3E; --t-pill: #2E8B3E; --t-pill-ink: #FFFFFF; }
+.tile--yellow { --t-bg: #FFF7D6; --t-line: #F2C200; --t-icon: #D9A800; --t-pill: #F2C200; --t-pill-ink: #1C1B1F; }
+.tile--orange { --t-bg: #FFEEDD; --t-line: #F08A24; --t-icon: #E07000; --t-pill: #F08A24; --t-pill-ink: #1C1B1F; }
+.tile--red    { --t-bg: #FDE7E5; --t-line: #D93025; --t-icon: #C62828; --t-pill: #C62828; --t-pill-ink: #FFFFFF; }
+.tile--wait   { --t-bg: #F3F1EE; --t-line: #DAD6D2; --t-icon: #A8A39E; --t-pill: #DAD6D2; --t-pill-ink: #5E5A57; }
+
+.icon-wrap { width: 108px; height: 72px; flex: none; display: flex; align-items: center; justify-content: center; }
+.icon-wrap img { width: 108px; height: 72px; object-fit: contain; }
+.icon-wrap svg { width: 108px; height: 72px; }
+.icon-wrap img + svg { display: none; } /* PNG 있으면 PNG, 없으면 기본 아이콘 */
+.tile__info { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tile__name { font-size: 30px; font-weight: 700; color: var(--ink); }
+.pill { display: inline-flex; align-items: center; gap: 6px; width: fit-content; border-radius: 999px; padding: 5px 14px 5px 10px; font-size: 19px; font-weight: 700; white-space: nowrap; background: var(--t-pill); color: var(--t-pill-ink); }
+.pill svg { width: 20px; height: 20px; }
+
+/* 6칸 같은 폭 + 칸마다 가운데 정렬 + 칸 사이 구분선 */
+.weather { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 2px solid var(--line); padding-top: 20px; }
+.weather > div { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; min-width: 0; padding: 0 6px; }
+.weather > div + div { border-left: 2px solid var(--line); }
+.label { font-size: 15px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+.value { font-size: 26px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#w-temp, #w-weather, #w-humidity { color: #4A4A50; }
+
+/* 대기질 값: 덜위치 기준 색상 */
+.aq { display: inline-flex; align-items: baseline; gap: 4px; }
+.aq small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.aq--green  { color: #2E8B3E; }
+.aq--yellow { color: #B58900; }
+.aq--orange { color: #E07000; }
+.aq--red    { color: #C62828; }
+.air-source { margin-top: auto; font-size: 12px; color: var(--muted); text-align: right; } /* 카드 맨 아래로 */
+
+/* ---------- Today ---------- */
+.card--today { height: 326px; padding: 32px 36px; display: flex; flex-direction: column; gap: 18px; }
+.schedule { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.schedule li { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; align-items: center; gap: 20px; padding: 16px 0; border-bottom: 2px solid var(--line); }
+.schedule li:last-child { border-bottom: 0; }
+.s-time { font-size: 28px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.s-event { font-size: 28px; font-weight: 600; display: flex; align-items: center; min-width: 0; }
+.s-loc { font-size: 22px; color: var(--muted); white-space: nowrap; text-align: right; }
+.schedule li.is-now .s-event::after { content: 'NOW'; flex: none; margin-left: 12px; font-size: 16px; font-weight: 800; letter-spacing: 1.5px; color: #fff; background: var(--accent); padding: 4px 10px; border-radius: 6px; vertical-align: middle; }
+.schedule .empty { display: block; border: 0; font-size: 26px; color: var(--muted); padding-top: 24px; }
+
+/* ---------- Discover ---------- */
+.card--discover { flex: 1; background: var(--ink); color: #fff; padding: 32px 36px; display: flex; align-items: center; gap: 36px; }
+.discover__num { font-size: 120px; font-weight: 800; letter-spacing: -4px; line-height: 1; color: var(--pink); }
+.discover__num:empty { display: none; }
+.discover__body { display: flex; flex-direction: column; gap: 12px; }
+.eyebrow { font-size: 18px; font-weight: 700; letter-spacing: 3px; color: var(--pink); }
+.discover__title { font-size: 32px; font-weight: 800; line-height: 1.2; }
+.discover__text { font-size: 24px; line-height: 1.4; color: #DAD6D2; }
+
+/* ---------- Photo cards ---------- */
+.card--photo { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.photo-slot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.photo { position: relative; flex: 1; min-height: 0; margin: 0 36px; border-radius: 16px; background: #E4E0DB; overflow: hidden; }
+/* 사진 기본 위치: 75% (시트 position 칸이 비어 있을 때) */
+.photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 75%; display: block; }
+.caption { position: relative; height: 44px; margin: 20px 36px 26px; overflow: hidden; }
+.caption > .layer { display: flex; align-items: center; gap: 16px; }
+.tag { flex: none; background: var(--accent); color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 1.5px; padding: 6px 14px; border-radius: 8px; text-transform: uppercase; }
+.caption__text { font-size: 28px; font-weight: 600; min-width: 0; flex: 1; display: flex; }
+
+/* 긴 글자: 칸을 넘치는 것만 좌우로 천천히 움직임 (JS가 넘침 여부 판단) */
+.marq { display: block; overflow: hidden; white-space: nowrap; min-width: 0; max-width: 100%; }
+.marq__inner { display: inline-block; white-space: nowrap; }
+.marq.is-scrolling .marq__inner { animation: marq var(--dur, 10s) ease-in-out infinite; }
+@keyframes marq {
+  0%, 15%  { transform: translateX(0); }
+  45%, 60% { transform: translateX(var(--shift)); }
+  90%, 100% { transform: translateX(0); }
+}
+
+/* 사진 카드 전환: 새 내용이 아래에서 올라오며 이전 내용을 위로 밀어냄 */
+.layer { position: absolute; inset: 0; transform: translateY(0); transition: transform .8s cubic-bezier(.65, 0, .35, 1); }
+.layer.enter { transform: translateY(100%); }
+.layer.leave { transform: translateY(-100%); }
+
+/* 로테이션 전환 (Discover) */
+.fade { transition: opacity .6s ease; }
+.fade.is-hidden { opacity: 0; }
+  </style>
+</head>
+<body>
+  <main id="stage" class="stage">
+
+    <!-- ============ LEFT SCREEN ============ -->
+    <section class="screen screen--left">
+      <header class="bar bar--left">
+        <div class="clock"><span id="clock-time"></span><span id="clock-ampm" class="clock__ampm"></span></div>
+        <div class="bar__divider"></div>
+        <div class="date">
+          <div id="date-en" class="date__en"></div>
+          <div id="date-ko" class="date__ko"></div>
+        </div>
+      </header>
+
+      <div class="col">
+        <!-- Can we play outside? -->
+        <article class="card card--outside">
+          <div class="card__head">
+            <h2>Can we play outside?</h2>
+          </div>
+          <div id="outside-tiles" class="tiles"></div>
+          <div class="weather">
+            <div><span class="label">TEMP</span><span id="w-temp" class="value">—</span></div>
+            <div><span class="label">WEATHER</span><span id="w-weather" class="value">—</span></div>
+            <div><span class="label">HUMIDITY</span><span id="w-humidity" class="value">—</span></div>
+            <div><span class="label">PM2.5</span><span id="w-pm25" class="value aq">—</span></div>
+            <div><span class="label">PM10</span><span id="w-pm10" class="value aq">—</span></div>
+            <div><span class="label">AQI</span><span id="w-aqi" class="value aq">—</span></div>
+          </div>
+          <div id="air-source" class="air-source">Seocho-gu · Weather: OpenWeather · Air quality: Seoul Metropolitan Gov.</div>
+        </article>
+
+        <!-- What's happening today? -->
+        <article class="card card--today">
+          <div class="card__head">
+            <h2>What’s happening today?</h2>
+          </div>
+          <ul id="schedule" class="schedule"></ul>
+        </article>
+
+        <!-- Something to discover -->
+        <article id="discover" class="card card--discover fade">
+          <div id="d-number" class="discover__num"></div>
+          <div class="discover__body">
+            <div class="eyebrow">SOMETHING TO DISCOVER</div>
+            <div id="d-title" class="discover__title"></div>
+            <div id="d-text" class="discover__text"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ RIGHT SCREEN ============ -->
+    <section class="screen screen--right">
+      <header class="bar bar--right">
+        <!-- 학교 로고: assets/logo.png (없으면 글자 로고 표시) -->
+        <img class="logo" src="assets/logo.png" alt="Dulwich College Seoul"
+             onerror="this.remove(); document.getElementById('brand-text').style.display='flex';">
+        <div id="brand-text" class="brand" style="display:none">
+          <div class="brand__en">DULWICH COLLEGE <span>| SEOUL</span></div>
+          <div class="brand__ko">덜위치 칼리지 서울</div>
+        </div>
+      </header>
+
+      <div class="col">
+        <article class="card card--photo">
+          <div class="card__head card__head--pad">
+            <h2>Student Spotlight</h2>
+          </div>
+          <div id="spotlight" class="photo-slot"><div class="photo"></div><div class="caption"></div></div>
+        </article>
+
+        <article class="card card--photo">
+          <div class="card__head card__head--pad">
+            <h2>Around School</h2>
+          </div>
+          <div id="around" class="photo-slot"><div class="photo"></div><div class="caption"></div></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+// ===== 사이니지 설정 =====
+// 1) 구글 시트를 '링크가 있는 모든 사용자 – 뷰어'로 공유
+// 2) 시트 URL의 /d/ 와 /edit 사이 문자열을 SHEET_ID 에 붙여넣기
+// 탭이 없거나 이름이 다르면 그 칸은 샘플로 표시됩니다.
+window.SIGNAGE_CONFIG = {
+  SHEET_ID: "1_tvulq0i73c9MQkeyXs9lvCbZsPkYaleyMJgIfi6444",
+
+  // 시트 탭 이름 (구글 시트 하단 탭 이름과 대소문자까지 똑같이)
+  TABS: {
+    schedule: "Schedule",   // date | time | event | location
+    spotlight: "Spotlight", // tag | caption | image | position(선택)
+    around: "Around",       // tag | caption | image | position(선택)
+    discover: "Discover"    // number | title | text
+  },
+
+  // ===== 날씨 (OpenWeather – 반포본동, 학교 IT팀과 같은 출처) =====
+  WX_URL: "https://api.openweathermap.org/data/2.5/weather?q=Banpobondong,KR&units=metric&APPID=8dba9e4f98fcccb617cf086aacad72ff",
+  WX_REFRESH_MINUTES: 10,
+
+  // ===== 대기질 (서울시 열린데이터 – 서초구) =====
+  AIR_URL: "https://script.google.com/macros/s/AKfycbxZ4AQVlE-JVwKBx37xZ6oVApR-TYQMExh16VkI6By2Ws6TkfPdXk09YU0APMEWQiOW/exec",
+  AIR_REFRESH_MINUTES: 10,
+
+  // 덜위치 기준 (이하 값까지 해당 색). [Green, Yellow, Orange] 상한 – 그 이상은 Red
+  AIR_RANGES: {
+    pm25: [35, 50, 75],    // µg/m³
+    pm10: [80, 110, 140],  // µg/m³
+    aqi:  [200, 200, 200]  // AQI는 Green(~200) / Red(201~)만 사용
+  },
+
+  REFRESH_MINUTES: 5,   // 시트 다시 불러오는 주기
+  ROTATE_SECONDS: 12,   // 사진/Discover 여러 개일 때 넘어가는 간격
+  SCHEDULE_ROWS: 3      // 일정 카드에 보이는 줄 수
+};
+
+(function () {
+  const CFG = window.SIGNAGE_CONFIG;
+
+  // ---------- 샘플 데이터 (시트/탭이 없을 때) ----------
+  const SAMPLE = {
+    schedule: [
+      { date: "", time: "08:30", event: "[Event name]", location: "[Location]" },
+      { date: "", time: "12:00", event: "[Event name]", location: "[Location]" },
+      { date: "", time: "15:10", event: "[Event name]", location: "[Location]" }
+    ],
+    spotlight: [{ tag: "Sarah", caption: "Won the prize in the poetry competition!", image: "" }],
+    around: [{ tag: "Year 6", caption: "Y6 went to Hong Kong!", image: "" }],
+    discover: [{ number: "1619", title: "Dulwich Discovery", text: "Did you know Dulwich College was founded in 1619 — over 400 years ago?" }]
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // ---------- 긴 글자 좌우 이동 ----------
+  // 칸보다 긴 글자만 움직이고, 짧은 글자는 그대로
+  const marq = (text) => `<span class="marq"><span class="marq__inner">${esc(text)}</span></span>`;
+  const MARQ_SPEED = 50; // 초당 이동 px (작을수록 천천히)
+  function applyMarquee(root) {
+    root.querySelectorAll(".marq").forEach((el) => {
+      const inner = el.firstElementChild;
+      el.classList.remove("is-scrolling");
+      const over = inner.scrollWidth - el.clientWidth;
+      if (over > 4) {
+        el.style.setProperty("--shift", `-${over + 8}px`);
+        // 한 사이클 중 30%씩 왕복 이동 → 이동 속도를 MARQ_SPEED 로 맞춤
+        el.style.setProperty("--dur", `${Math.max(6, (over + 8) / (MARQ_SPEED * 0.3))}s`);
+        el.classList.add("is-scrolling");
+      }
+    });
+  }
+  // 폰트가 다 불러와진 뒤 한 번 더 길이 재기
+  if (document.fonts) document.fonts.ready.then(() => applyMarquee(document));
+
+  // ---------- 화면 맞춤 (해상도가 1872×1248 이 아닐 때) ----------
+  function fit() {
+    const s = Math.min(window.innerWidth / 1872, window.innerHeight / 1248);
+    $("stage").style.transform = `scale(${s})`;
+  }
+  window.addEventListener("resize", fit);
+  fit();
+
+  // ---------- 시계 ----------
+  function tick() {
+    const now = new Date();
+    let h = now.getHours();
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    $("clock-time").textContent = `${h}:${pad(now.getMinutes())}`;
+    $("clock-ampm").textContent = ampm;
+    $("date-en").textContent = now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+    $("date-ko").textContent = now.toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "long" });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ---------- 구글 시트 CSV ----------
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], cell = "", q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') q = false;
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ",") { row.push(cell); cell = ""; }
+      else if (c === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+      else if (c !== "\r") cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    const head = (rows.shift() || []).map((h) => h.trim().toLowerCase());
+    return rows
+      .map((r) => Object.fromEntries(head.map((h, i) => [h, (r[i] || "").trim()])))
+      .filter((o) => Object.values(o).some((v) => v));
+  }
+
+  // 탭마다 꼭 있어야 하는 열 (없으면 탭 이름이 틀린 것으로 보고 샘플 사용)
+  const REQUIRED = { schedule: "event", spotlight: "caption", around: "caption", discover: "title" };
+
+  async function loadTab(key) {
+    if (!CFG.SHEET_ID) return SAMPLE[key];
+    const url = `https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(CFG.TABS[key])}&_=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${key}: ${res.status}`);
+    const rows = parseCSV(await res.text());
+    if (rows.length && !(REQUIRED[key] in rows[0])) {
+      console.warn(`시트 '${CFG.TABS[key]}' 탭을 찾지 못해 샘플을 표시합니다.`);
+      return SAMPLE[key];
+    }
+    return rows;
+  }
+
+  // ---------- 사진: 구글 드라이브 공유 링크 → 이미지 주소 ----------
+  // image 칸에 드라이브 공유 링크(https://drive.google.com/file/d/.../view) 또는 일반 이미지 주소
+  function imageUrl(src) {
+    src = String(src || "").trim();
+    if (!src) return "";
+    const m = src.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?.*id=)([\w-]+)/);
+    return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600` : src;
+  }
+
+  // ---------- 아이콘: 학교 + 학생 ----------
+  // out: 학생이 학교 밖 / limited: 하나는 안, 하나는 밖 / in: 학생 모두 학교 안
+  const kidOut = (cx) => `<circle cx="${cx}" cy="41" r="3.4"/><rect x="${cx - 3.8}" y="45.5" width="7.6" height="8.5" rx="2.6"/><rect x="${cx - 6}" y="46" width="2.2" height="6.5" rx="1.1"/><rect x="${cx + 3.8}" y="46" width="2.2" height="6.5" rx="1.1"/><rect x="${cx - 3.2}" y="53" width="2.6" height="5"/><rect x="${cx + 0.6}" y="53" width="2.6" height="5"/>`;
+  const kidIn = (cx) => `<circle cx="${cx}" cy="46.5" r="2.4"/><rect x="${cx - 2.7}" y="49.6" width="5.4" height="5.6" rx="1.8"/><rect x="${cx - 2.2}" y="55" width="1.8" height="3"/><rect x="${cx + 0.4}" y="55" width="1.8" height="3"/>`;
+  function schoolIcon(state) {
+    const inside = state === "in" ? kidIn(27) + kidIn(35) : state === "limited" ? kidIn(31) : "";
+    const outside = state === "out" ? kidOut(72) + kidOut(86) : state === "limited" ? kidOut(78) : "";
+    return `<svg viewBox="0 0 96 64" fill="currentColor" aria-hidden="true">
+      <rect x="30.4" y="4" width="1.6" height="13"/><path d="M32 4l9 3.2-9 3.2z"/>
+      <path d="M14 30L31 15l17 15z"/><rect x="2" y="30" width="58" height="28"/>
+      <g fill="#fff"><rect x="6" y="35" width="8" height="6" rx="1"/><rect x="48" y="35" width="8" height="6" rx="1"/>
+      <rect x="6" y="46" width="8" height="6" rx="1"/><rect x="48" y="46" width="8" height="6" rx="1"/>
+      <rect x="21" y="36" width="20" height="22" rx="1.5"/></g>
+      ${inside}${outside}<rect x="0" y="58" width="96" height="3" rx="1.5"/></svg>`;
+  }
+  const PILL_ICON = {
+    out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    limited: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 6v8M12 18.5v.5"/></svg>',
+    in: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>'
+  };
+  // 나중에 PNG 아이콘: assets/ducks-green.png, assets/juniors-red.png ... 있으면 PNG 우선
+  const iconFor = (group, color, state) =>
+    `<span class="icon-wrap"><img src="assets/${group}-${color}.png" alt="" onerror="this.remove()">${schoolIcon(state)}</span>`;
+
+  // ---------- Can we play outside? : 덜위치 대기질 규정 ----------
+  // 전체 등급 = PM2.5 / PM10 / AQI 중 가장 나쁜 등급
+  const RULES = {
+    green: {
+      ducks:   { color: "green",  icon: "out",     pill: "OK to play" },
+      juniors: { color: "green",  icon: "out",     pill: "OK to play" }
+    },
+    yellow: {
+      ducks:   { color: "yellow", icon: "limited", pill: "Short play" },
+      juniors: { color: "green",  icon: "out",     pill: "OK to play" }
+    },
+    orange: {
+      ducks:   { color: "red",    icon: "in",      pill: "Stay inside" },
+      juniors: { color: "orange", icon: "limited", pill: "Light play" }
+    },
+    red: {
+      ducks:   { color: "red",    icon: "in",      pill: "Stay inside" },
+      juniors: { color: "red",    icon: "in",      pill: "Stay inside" }
+    }
+  };
+  const GROUPS = [{ key: "ducks", name: "DUCKS" }, { key: "juniors", name: "JUNIORS" }];
+
+  function renderOutside(level) {
+    const rule = RULES[level];
+    $("outside-tiles").innerHTML = GROUPS.map((g) => {
+      const r = rule ? rule[g.key] : { color: "wait", icon: "out", pill: "Checking…" };
+      return `<div class="tile tile--${r.color}">
+        ${iconFor(g.key, r.color, r.icon)}
+        <div class="tile__info">
+          <div class="tile__name">${g.name}</div>
+          <div class="pill">${rule ? PILL_ICON[r.icon] : ""}${r.pill}</div>
+        </div></div>`;
+    }).join("");
+  }
+  renderOutside(null);
+
+  // ---------- What's happening today? ----------
+  // 시트 열: date | time | event | location
+  //  - date 칸: 2026-11-05 처럼 입력. 비워두면 "매일" 표시
+  //  - time 칸: 08:30 처럼 24시간 형식
+  const toMin = (t) => { const m = /(\d{1,2}):(\d{2})/.exec(t || ""); return m ? +m[1] * 60 + +m[2] : -1; };
+  const hhmm = (t) => { const v = toMin(t); return v < 0 ? (t || "") : `${pad(Math.floor(v / 60))}:${pad(v % 60)}`; };
+  // "2026-11-05", "2026. 11. 5", "11/5/2026" 모두 → "2026-11-05"
+  function normDate(s) {
+    const n = String(s || "").match(/\d+/g);
+    if (!n || n.length < 3) return "";
+    const [y, m, d] = n[0].length === 4 ? [n[0], n[1], n[2]] : [n[2], n[0], n[1]];
+    return `${y}-${pad(+m)}-${pad(+d)}`;
+  }
+  const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+
+  let scheduleRows = [];
+  function renderSchedule() {
+    const today = todayStr();
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const rows = scheduleRows
+      .filter((r) => r.event && (!r.date || normDate(r.date) === today))
+      .sort((a, b) => toMin(a.time) - toMin(b.time));
+    const N = CFG.SCHEDULE_ROWS;
+
+    // 진행 중 = 시작했고 다음 일정 전 (마지막 일정은 시작 후 60분까지)
+    let nowIdx = rows.findIndex((r, i) => {
+      const s = toMin(r.time), next = i < rows.length - 1 ? toMin(rows[i + 1].time) : s + 60;
+      return s >= 0 && s <= nowMin && nowMin < next;
+    });
+    let start;
+    if (nowIdx >= 0) start = nowIdx;
+    else {
+      const next = rows.findIndex((r) => toMin(r.time) > nowMin);
+      start = next >= 0 ? next : Math.max(0, rows.length - N); // 다 끝났으면 마지막 일정들
+    }
+    const shown = rows.slice(start, start + N);
+    $("schedule").innerHTML = shown.length
+      ? shown.map((r, i) => `<li class="${start + i === nowIdx ? "is-now" : ""}">
+          <span class="s-time">${esc(hhmm(r.time))}</span>
+          <span class="s-event">${marq(r.event)}</span>
+          <span class="s-loc">${esc(r.location)}</span></li>`).join("")
+      : `<li class="empty">오늘 예정된 일정이 없습니다.</li>`;
+    applyMarquee($("schedule"));
+  }
+
+  // ---------- 사진 카드 (Student Spotlight / Around School) ----------
+  // 새 내용이 아래에서 올라오며 이전 내용을 위로 밀어냄 (사진 칸, 글자 칸 각각)
+  function slideSwap(box, html, animate) {
+    const old = [...box.children].find((c) => c.classList.contains("layer") && !c.classList.contains("leave"));
+    const layer = document.createElement("div");
+    layer.className = "layer" + (old && animate ? " enter" : "");
+    layer.innerHTML = html;
+    box.appendChild(layer);
+    if (!old) return layer;
+    if (!animate) { old.remove(); return layer; }
+    void layer.offsetHeight; // 시작 위치 적용
+    old.classList.add("leave");
+    layer.classList.remove("enter");
+    setTimeout(() => old.remove(), 900);
+    return layer;
+  }
+  function showPhoto(key, r, animate) {
+    const slot = $(key);
+    const src = imageUrl(r.image);
+    // position 칸(선택): 숫자가 클수록 사진 아래쪽이 보임. 비우면 CSS 기본값(75%)
+    const p = String(r.position || "").trim();
+    const pos = /^\d+(\.\d+)?%?$/.test(p) ? ` style="object-position: center ${parseFloat(p)}%"` : "";
+    slideSwap(slot.querySelector(".photo"), src ? `<img src="${esc(src)}" alt="${esc(r.caption)}"${pos}>` : "", animate);
+    const cap = slideSwap(slot.querySelector(".caption"),
+      `${r.tag ? `<span class="tag">${esc(r.tag)}</span>` : ""}<span class="caption__text">${marq(r.caption)}</span>`, animate);
+    applyMarquee(cap);
+  }
+
+  // 여러 행이면 ROTATE_SECONDS 마다 순환
+  // slide=true: 아래→위로 밀어내기 / false: 페이드
+  const rotators = {}, rotSig = {};
+  function rotate(key, rows, apply, slide) {
+    const sig = JSON.stringify(rows);
+    if (rotSig[key] === sig) return; // 시트 내용이 그대로면 순환 유지
+    rotSig[key] = sig;
+    clearInterval(rotators[key]);
+    if (!rows.length) return;
+    let i = 0;
+    apply(rows[0], false);
+    if (rows.length < 2) return;
+    rotators[key] = setInterval(() => {
+      i = (i + 1) % rows.length;
+      if (slide) { apply(rows[i], true); return; }
+      const el = $(key);
+      el.classList.add("is-hidden");
+      setTimeout(() => { apply(rows[i]); el.classList.remove("is-hidden"); }, 600);
+    }, CFG.ROTATE_SECONDS * 1000);
+  }
+
+  async function refresh() {
+    const keys = ["schedule", "spotlight", "around", "discover"];
+    const results = await Promise.allSettled(keys.map(loadTab));
+    const data = {};
+    keys.forEach((k, i) => {
+      if (results[i].status === "fulfilled") data[k] = results[i].value;
+      else console.warn("시트 불러오기 실패:", results[i].reason); // 실패 시 이전 화면 유지
+    });
+    if (data.schedule) { scheduleRows = data.schedule; renderSchedule(); }
+    if (data.spotlight) rotate("spotlight", data.spotlight, (r, a) => showPhoto("spotlight", r, a), true);
+    if (data.around) rotate("around", data.around, (r, a) => showPhoto("around", r, a), true);
+    if (data.discover) rotate("discover", data.discover, (r) => {
+      $("d-number").textContent = r.number || "";
+      $("d-title").textContent = r.title || "";
+      $("d-text").textContent = r.text || "";
+    });
+  }
+
+  refresh();
+  setInterval(refresh, CFG.REFRESH_MINUTES * 60 * 1000);
+  setInterval(renderSchedule, 60 * 1000);
+
+  // ---------- 출처 문구 (날씨/대기질 기준 시각) ----------
+  const srcTimes = { wx: "", air: "" };
+  function renderSource() {
+    $("air-source").textContent =
+      `Seocho-gu · Weather: OpenWeather${srcTimes.wx ? " " + srcTimes.wx : ""} · Air quality: Seoul Metropolitan Gov.${srcTimes.air ? " " + srcTimes.air : ""}`;
+  }
+
+  // ---------- 대기질: 서울시 API (CAI=AQI, PM=PM10, FPM=PM2.5) ----------
+  const LEVELS = ["green", "yellow", "orange", "red"];
+  function levelOf(key, v) {
+    const r = CFG.AIR_RANGES[key];
+    if (v <= r[0]) return "green";
+    if (v <= r[1]) return "yellow";
+    if (v <= r[2]) return "orange";
+    return "red";
+  }
+  function setAir(id, key, raw, unit) {
+    const el = $(id);
+    const v = parseFloat(raw);
+    el.classList.remove(...LEVELS.map((l) => "aq--" + l));
+    if (isNaN(v)) { el.textContent = "—"; return null; }
+    const lv = levelOf(key, v);
+    el.classList.add("aq--" + lv);
+    el.innerHTML = `${esc(raw)}${unit ? `<small>${unit}</small>` : ""}`;
+    return lv;
+  }
+
+  window.AIR = { pm25: null, pm10: null, aqi: null, levels: {}, time: null };
+
+  async function loadAir() {
+    try {
+      const res = await fetch(CFG.AIR_URL, { cache: "no-store" });
+      const xml = new DOMParser().parseFromString(await res.text(), "application/xml");
+      const pick = (tag) => (xml.querySelector("row > " + tag)?.textContent || "").trim();
+      const row = { FPM: pick("FPM"), PM: pick("PM"), CAI: pick("CAI"), MSRMT_YMD: pick("MSRMT_YMD") };
+      if (!row.CAI && !row.PM && !row.FPM) throw new Error("데이터 없음");
+      window.AIR = {
+        pm25: row.FPM, pm10: row.PM, aqi: row.CAI, time: row.MSRMT_YMD,
+        levels: {
+          pm25: setAir("w-pm25", "pm25", row.FPM, "µg/m³"),
+          pm10: setAir("w-pm10", "pm10", row.PM, "µg/m³"),
+          aqi: setAir("w-aqi", "aqi", row.CAI, "")
+        }
+      };
+      // 측정 시각 202610270900 → 09:00
+      const t = String(row.MSRMT_YMD || "");
+      srcTimes.air = t.length >= 12 ? `${t.slice(8, 10)}:${t.slice(10, 12)}` : "";
+      renderSource();
+      // 가장 나쁜 등급으로 DUCKS / JUNIORS 결정
+      const worst = Object.values(window.AIR.levels).filter(Boolean)
+        .reduce((a, b) => (LEVELS.indexOf(b) > LEVELS.indexOf(a) ? b : a), "green");
+      window.AIR.overall = worst;
+      renderOutside(worst);
+    } catch (e) {
+      console.warn("대기질 불러오기 실패 (이전 값 유지):", e);
+    }
+  }
+  loadAir();
+  setInterval(loadAir, CFG.AIR_REFRESH_MINUTES * 60 * 1000);
+
+  // ---------- 기온/날씨/습도: OpenWeather ----------
+  // main.temp 기온(°C, units=metric) / main.humidity 습도 / weather[0].main 날씨
+  const WX_TEXT = {
+    Clear: "Clear", Clouds: "Cloudy", Rain: "Rain", Drizzle: "Drizzle", Thunderstorm: "Storm",
+    Snow: "Snow", Mist: "Mist", Fog: "Fog", Haze: "Haze", Smoke: "Haze", Dust: "Dust", Sand: "Dust"
+  };
+
+  async function loadWeather() {
+    try {
+      const res = await fetch(CFG.WX_URL, { cache: "no-store" });
+      const j = await res.json();
+      if (!j.main) throw new Error(j.message || "데이터 없음");
+      const main = j.weather?.[0]?.main || "";
+      $("w-temp").textContent = `${Math.round(j.main.temp)}°C`;
+      $("w-weather").textContent = WX_TEXT[main] || main || "—";
+      $("w-humidity").textContent = `${j.main.humidity}%`;
+      const t = new Date(j.dt * 1000); // 측정 시각
+      srcTimes.wx = `${pad(t.getHours())}:${pad(t.getMinutes())}`;
+      renderSource();
+    } catch (e) {
+      console.warn("날씨 불러오기 실패 (이전 값 유지):", e);
+    }
+  }
+  loadWeather();
+  setInterval(loadWeather, CFG.WX_REFRESH_MINUTES * 60 * 1000);
+
+  // 하루 한 번 새로고침 (메모리 누수/캐시 방지, 새벽 4시)
+  setInterval(() => { const d = new Date(); if (d.getHours() === 4 && d.getMinutes() === 0) location.reload(); }, 60 * 1000);
+})();
+  </script>
+</body>
+</html>
