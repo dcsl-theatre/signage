@@ -166,6 +166,28 @@ html, body {
 /* 로테이션 전환 (Discover) */
 .fade { transition: opacity .6s ease; }
 .fade.is-hidden { opacity: 0; }
+
+/* ===== 플레이어(구형 브라우저) 호환: flex 'gap' 대신 margin으로 간격 ===== */
+.bar--left, .bar--right, .brand, .date, .col, .card--outside, .tile, .tile__info, .pill,
+.weather > div, .aq, .card--today, .card--discover, .discover__body, .caption > .layer { gap: 0; }
+
+.bar--left > * + *, .bar--right > * + * { margin-left: 28px; }
+.brand > * + *          { margin-top: 6px; }
+.date > * + *           { margin-top: 4px; }
+.col > * + *            { margin-top: 20px; }
+.card--outside > * + *  { margin-top: 22px; }
+.card--outside > .air-source { margin-top: auto; }
+.tile > * + *           { margin-left: 22px; }
+.tile__info > * + *     { margin-top: 8px; }
+.pill svg               { margin-right: 6px; }
+.weather > div > * + *  { margin-top: 6px; }
+.aq small               { margin-left: 4px; }
+.card--today > * + *    { margin-top: 18px; }
+.card--discover > * + * { margin-left: 36px; }
+.discover__body > * + * { margin-top: 12px; }
+.discover__num:empty + .discover__body { margin-left: 0; }
+.caption > .layer > * + * { margin-left: 20px; } /* 태그와 캡션 사이 간격 */
+.layer { top: 0; right: 0; bottom: 0; left: 0; }
   </style>
 </head>
 <body>
