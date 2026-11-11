@@ -536,7 +536,7 @@ window.SIGNAGE_CONFIG = {
           <span class="s-time">${esc(hhmm(r.time))}</span>
           <span class="s-event">${marq(r.event)}</span>
           <span class="s-loc">${esc(r.location)}</span></li>`).join("")
-      : `<li class="empty">오늘 예정된 일정이 없습니다.</li>`;
+      : `<li class="empty">No events scheduled for today.</li>`;
     applyMarquee($("schedule"));
   }
 
